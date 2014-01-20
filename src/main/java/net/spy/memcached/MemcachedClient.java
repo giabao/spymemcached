@@ -177,6 +177,13 @@ public class MemcachedClient extends SpyObject implements MemcachedClientIF,
     this(new DefaultConnectionFactory(), addrs);
   }
 
+  private void validateCtorParams(ConnectionFactory cf, List<InetSocketAddress> addrs){
+    if (cf == null) throw new NullPointerException("Connection factory required");
+    if (addrs == null) throw new NullPointerException("Server list required");
+    if (addrs.isEmpty()) throw new IllegalArgumentException("You must have at least one server to connect to");
+    if (cf.getOperationTimeout() <= 0) throw new IllegalArgumentException("Operation timeout must be positive.");
+  }
+
   /**
    * Get a memcache client over the specified memcached locations.
    *
@@ -184,34 +191,34 @@ public class MemcachedClient extends SpyObject implements MemcachedClientIF,
    * @param addrs the socket addresses
    * @throws IOException if connections cannot be established
    */
-  public MemcachedClient(ConnectionFactory cf, List<InetSocketAddress> addrs)
-    throws IOException {
-    if (cf == null) {
-      throw new NullPointerException("Connection factory required");
-    }
-    if (addrs == null) {
-      throw new NullPointerException("Server list required");
-    }
-    if (addrs.isEmpty()) {
-      throw new IllegalArgumentException("You must have at least one server to"
-          + " connect to");
-    }
-    if (cf.getOperationTimeout() <= 0) {
-      throw new IllegalArgumentException("Operation timeout must be positive.");
-    }
+  public MemcachedClient(ConnectionFactory cf, List<InetSocketAddress> addrs) throws IOException {
+    validateCtorParams(cf, addrs);
     connFactory = cf;
-    tcService = new TranscodeService(cf.isDaemon());
-    transcoder = cf.getDefaultTranscoder();
     opFact = cf.getOperationFactory();
     assert opFact != null : "Connection factory failed to make op factory";
     mconn = cf.createConnection(addrs);
     assert mconn != null : "Connection factory failed to make a connection";
     operationTimeout = cf.getOperationTimeout();
     authDescriptor = cf.getAuthDescriptor();
+    transcoder = cf.getDefaultTranscoder();
+    tcService = new TranscodeService(cf.isDaemon());
     executorService = cf.getListenerExecutorService();
-    if (authDescriptor != null) {
-      addObserver(this);
-    }
+    if (authDescriptor != null) addObserver(this);
+  }
+
+  protected MemcachedClient(ConnectionFactory cf, List<InetSocketAddress> addrs, TranscodeService ts, ExecutorService es) throws IOException {
+    validateCtorParams(cf, addrs);
+    connFactory = cf;
+    opFact = cf.getOperationFactory();
+    assert opFact != null : "Connection factory failed to make op factory";
+    mconn = cf.createConnection(addrs);
+    assert mconn != null : "Connection factory failed to make a connection";
+    operationTimeout = cf.getOperationTimeout();
+    authDescriptor = cf.getAuthDescriptor();
+    transcoder = cf.getDefaultTranscoder();
+    tcService = ts;
+    executorService = es;
+    if (authDescriptor != null) addObserver(this);
   }
 
   /**
