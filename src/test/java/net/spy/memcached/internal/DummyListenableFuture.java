@@ -23,10 +23,7 @@
 
 package net.spy.memcached.internal;
 
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
+import java.util.concurrent.*;
 
 /**
  * A very basic {@link ListenableFuture} to verify and test basic
@@ -85,14 +82,14 @@ public class DummyListenableFuture<T>
   @Override
   public DummyListenableFuture<T> addListener(
     GenericCompletionListener listener) {
-    super.addToListeners(listener);
+    super.addToListeners((GenericCompletionListener<? extends Future<T>>)listener);
     return this;
   }
 
   @Override
   public DummyListenableFuture<T> removeListener(
     GenericCompletionListener listener) {
-    super.removeFromListeners(listener);
+    super.removeFromListeners((GenericCompletionListener<? extends Future<T>>)listener);
     return this;
   }
 
