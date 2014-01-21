@@ -18,7 +18,7 @@ import net.spy.memcached.compat.log.LoggerFactory
 //when finished migrate the client from java Future to scala Future
 //Then, we will override & add @deprecated annotation to some methods in MemcachedClient
 class MemcachedClientScala(cf: ConnectionFactory, addrs: Seq[InetSocketAddress])
-  extends MemcachedClient(cf, addrs.asJava) //, null, null) //if we only use
+  extends MemcachedClient(cf, addrs.asJava) //, null, null)
   with GetImpl with GetBulkImpl {
 
   def this(ia: InetSocketAddress*) = this(new DefaultConnectionFactory, ia)
