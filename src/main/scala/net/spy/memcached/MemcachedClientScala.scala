@@ -29,6 +29,7 @@ class MemcachedClientScala(cf: ConnectionFactory, addrs: Seq[InetSocketAddress])
 private[memcached] trait GetImpl {this: MemcachedClientScala =>
   def scalaGet(key: String): Future[AnyRef] = scalaGet(key, transcoder)
 
+  //This method is migrated from MemcachedClient.asyncGet(String, Transcoder<T>)
   def scalaGet[T](key: String, tc: Transcoder[T]): Future[T] = {
     val retP = Promise[T]() //result promise
     val tcP = Promise[T]() //transcoder promise
@@ -70,11 +71,12 @@ private[memcached] trait GetImpl {this: MemcachedClientScala =>
 }
 
 private[memcached] trait GetBulkImpl {this: MemcachedClientScala =>
-    def scalaGetBulk(keys: Seq[String]): Future[Map[String, AnyRef]] = scalaGetBulk(keys, transcoder)
+  def scalaGetBulk(keys: Seq[String]): Future[Map[String, AnyRef]] = scalaGetBulk(keys, transcoder)
 
   def scalaGetBulk[T](keys: Seq[String], tc: Transcoder[T]): Future[Map[String, T]] =
     scalaGetBulk(keys, new SingleElementInfiniteIterator(tc).toIterable)
 
+  //This method is migrated from MemcachedClient.asyncGetBulk(Iterator<String>, Iterator<Transcoder<T>>)
   def scalaGetBulk[T](keys: Seq[String], tcIter: Iterable[Transcoder[T]]): Future[Map[String, T]] = {
     keys.foreach(StringUtils.validateKey(_, opFact.isInstanceOf[BinaryOperationFactory]))
 
