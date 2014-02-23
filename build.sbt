@@ -20,12 +20,12 @@ javacOptions ++= Seq("-encoding", "UTF-8", "-source", "1.7", "-target", "1.7", "
 parallelExecution in Test := false
 
 libraryDependencies ++= Seq(
-  "org.scalatest"           %% "scalatest"        % "2.0"     % "test",
-  "jmock"                    % "jmock"            % "1.2.0"   % "test",
-  "checkstyle"               % "checkstyle"       % "5.0"     % "test",
-  "com.google.code.findbugs" % "findbugs"         % "1.3.9"   % "test",
-  "com.novocode"             % "junit-interface"  % "0.10"    % "test"
-)
+  "org.scalatest"           %% "scalatest"        % "2.0",
+  "jmock"                    % "jmock"            % "1.2.0",
+  "checkstyle"               % "checkstyle"       % "5.0",
+  "com.google.code.findbugs" % "findbugs"         % "1.3.9",
+  "com.novocode"             % "junit-interface"  % "0.10"
+).map(_ % "test")
 
 //http://youtrack.jetbrains.com/issue/SCL-6404
 libraryDependencies ++= Seq(
