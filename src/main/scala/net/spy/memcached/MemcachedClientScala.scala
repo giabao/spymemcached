@@ -42,7 +42,8 @@ private[memcached] trait GetImpl {this: MemcachedClientScala =>
       }
       override def gotData(k: String, flags: Int, data: Array[Byte]){
         assert(key == k, "Wrong key returned")
-        //assert ! tcP.isCompleted
+        //we dont need the following assert because the complete & completeWith method of Promise will check that.
+        //assert(! tcP.isCompleted, "received gotData multi times!")
         val cachedData = new CachedData(flags, data, tc.getMaxSize)
         if(tc.asyncDecode(cachedData))
           tcP completeWith Future[T](tc.decode(cachedData))
@@ -50,7 +51,10 @@ private[memcached] trait GetImpl {this: MemcachedClientScala =>
           tcP complete Try(tc.decode(cachedData))
       }
       override def complete(){
-        if(retP.isCompleted) return
+        if(retP.isCompleted) {
+          logger.warn("Get {}, received complete multi times!", key)
+          return
+        }
         val status = sref.get
         if(status != null && status.isSuccess){
           retP completeWith tcP.future
@@ -120,7 +124,8 @@ private[memcached] trait GetBulkImpl {this: MemcachedClientScala =>
         logger.debug("gotData: %s, %d, %d", k, Int.box(flags), Int.box(data.length))
         val tc = tcMap(k)
         val p = tcPs(k)
-        //assert ! p.isCompleted
+        //we dont need the following assert because the complete & completeWith method of Promise will check that.
+        //assert(! tcP.isCompleted, "received gotData multi times!")
         val cachedData = new CachedData(flags, data, tc.getMaxSize)
         if(tc.asyncDecode(cachedData))
           p completeWith Future[T](tc.decode(cachedData))
@@ -128,7 +133,10 @@ private[memcached] trait GetBulkImpl {this: MemcachedClientScala =>
           p complete Try(tc.decode(cachedData))
       }
       override def complete(){
-        if(retP.isCompleted) return
+        if(retP.isCompleted) {
+          logger.warn("GetBuld {}, received complete multi times!", keys)
+          return
+        }
         val status = sref.get
         if(status != null && status.isSuccess){
           retP completeWith Future.
