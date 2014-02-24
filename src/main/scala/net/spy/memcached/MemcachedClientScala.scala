@@ -14,7 +14,7 @@ import net.spy.memcached.protocol.binary.BinaryOperationFactory
 import net.spy.memcached.compat.log.LoggerFactory
 
 //TODO dont use TranscodeService & ExecutorService
-//We need pass nuss as TranscodeService & ExecutorService params to MemcachedClient's Ctor
+//We need pass null as TranscodeService & ExecutorService params to MemcachedClient's Ctor
 //when finished migrate the client from java Future to scala Future
 //Then, we will override & add @deprecated annotation to some methods in MemcachedClient
 class MemcachedClientScala(cf: ConnectionFactory, addrs: Seq[InetSocketAddress])
@@ -23,6 +23,8 @@ class MemcachedClientScala(cf: ConnectionFactory, addrs: Seq[InetSocketAddress])
 
   def this(ia: InetSocketAddress*) = this(new DefaultConnectionFactory, ia)
 
+  //We can't use net.spy.memcached.compat.SpyObject.getLogger because it's protected
+  // => prevent using from the XxImpl traits
   protected lazy val logger = LoggerFactory.getLogger(this.getClass)
 }
 
