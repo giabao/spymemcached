@@ -4,7 +4,7 @@ name := "scala-memcached"
 
 //git describe --abbrev=0
 
-version := "2.10.4"
+version := "2.10.5"
 
 scalaVersion := "2.10.3"
 
